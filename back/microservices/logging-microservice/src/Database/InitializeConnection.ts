@@ -1,9 +1,9 @@
-import { Result, ResultAsync, okAsync, errAsync, fromAsyncThrowable, fromPromise,  } from "neverthrow";
+import { fromAsyncThrowable } from "neverthrow";
 import { Db } from "./DbConnectionPool";
 
 
 
-export async function initialize_database() {
+export async function initializeDatabase() {
   const result = fromAsyncThrowable(Db.initialize);
   
   result().match(
