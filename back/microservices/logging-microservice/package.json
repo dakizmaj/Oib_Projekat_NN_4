@@ -11,19 +11,17 @@
   },
   "dependencies": {
     "axios": "^1.12.2",
-    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "eslint-plugin-neverthrow": "^1.1.4",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
     "neverthrow": "^8.2.0",
     "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.4",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.9.1",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
