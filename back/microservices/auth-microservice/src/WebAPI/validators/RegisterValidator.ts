@@ -11,6 +11,9 @@ export function validateRegistrationData(data: RegistrationUserDTO): { success: 
   if (!data.email || !data.email.includes("@")) {
     return { success: false, message: "Invalid email address" };
   }
+  if (!data.fullname || data.fullname.trim().length < 3) {
+    return { success: false, message: "Full name must be at least 3 characters long" };
+  }
   if (!Object.values(UserRole).includes(data.role)) {
     return { success: false, message: "Invalid role" };
   }

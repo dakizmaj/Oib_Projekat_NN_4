@@ -5,5 +5,6 @@ export interface RegistrationUserDTO {
     role: UserRole;
     password: string;
     email: string;
-    profileImage: string;
+    fullname: string;
+    profileImage?: string;
 }
