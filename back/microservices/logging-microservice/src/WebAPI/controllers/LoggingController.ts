@@ -27,8 +27,8 @@ export class LoggingController {
   
   
   private async store(request: Request, response: Response) {
-    if (request.body.log == null){
-      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request });
+    if (request.body.log == null) {
+      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request.body });
       return;
     }
     
@@ -36,16 +36,16 @@ export class LoggingController {
     const result = this.loggingService.store(log);
     
     (await result).match(
-      (_) => { response.status(200).json({msg: "Log stored"}) },
-      (err) => { response.status(400).json({errMsg: "Error occured", errType: err}) }
-    )
+      (_) => { response.status(200).json({ msg: "Log stored" }) },
+      (err) => { response.status(400).json({ errMsg: "Error occured", errType: err }) }
+    );
   }
   
   
   
   private async read(request: Request, response: Response) {
     if (request.body.logId == null) {
-      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request });
+      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request.body });
       return;
     }
     
@@ -53,16 +53,16 @@ export class LoggingController {
     const result = this.loggingService.read(logId);
     
     (await result).match(
-      (log) => { response.status(200).json({returned: log}) },
-      (err) => { response.status(400).json({errMsg: "Error occured", errType: err}) }
-    )
+      (log) => { response.status(200).json({ returned: log }) },
+      (err) => { response.status(400).json({ errMsg: "Error occured", errType: err }) }
+    );
   }
   
   
   
   private async update(request: Request, response: Response) {
     if (request.body.log == null) {
-      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request });
+      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request.body });
       return;
     }
     
@@ -70,16 +70,16 @@ export class LoggingController {
     const result = this.loggingService.update(log);
     
     (await result).match(
-      (log) => { response.status(200).json({returned: log}) },
-      (err) => { response.status(400).json({errMsg: "Error occured", errType: err}) }
-    )
+      (log) => { response.status(200).json({ returned: log }) },
+      (err) => { response.status(400).json({ errMsg: "Error occured", errType: err }) }
+    );
   }
   
   
   
   private async delete(request: Request, response: Response) {
     if (request.body.logId == null) {
-      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request });
+      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request.body });
       return;
     }
     
@@ -87,16 +87,16 @@ export class LoggingController {
     const result = this.loggingService.delete(logId);
     
     (await result).match(
-      (_) => { response.status(200).json({msg: `Log #${logId} deleted`}) },
-      (err) => { response.status(400).json({errMsg: "Error occured", errType: err}) }
-    )
+      (_) => { response.status(200).json({ msg: `Log #${logId} deleted` }) },
+      (err) => { response.status(400).json({ errMsg: "Error occured", errType: err }) }
+    );
   }
   
   
   
   private async filter(request: Request, response: Response) {
     if (request.body.params == null) {
-      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request });
+      response.status(400).json({ errMsg: "Bad body request", bodyRequest: request.body });
       return;
     }
     
@@ -104,8 +104,8 @@ export class LoggingController {
     const result = this.loggingService.filter(params);
     
     (await result).match(
-      (logs) => { response.status(200).json({returned: logs}) },
-      (err) => { response.status(400).json({errMsg: "Error occured", errType: err}) }
-    )
+      (logs) => { response.status(200).json({ returned: logs }) },
+      (err) => { response.status(400).json({ errMsg: "Error occured", errType: err }) }
+    );
   }
 }
