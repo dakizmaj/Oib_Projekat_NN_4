@@ -8,6 +8,9 @@ export async function initializeDatabase() {
   
   result().match(
     (ds: object) => { console.log("\x1b[34m[DbConn@1.12.4]\x1b[0m Database connected"); },
-    (err: any) => { console.error("\x1b[31m[DbConn@1.12.4]\x1b[0m Error during DataSource initialization ", err); }
+    (err: any) => {
+      console.error("\x1b[31m[DbConn@1.12.4]\x1b[0m Error during DataSource initialization (Read below):");
+      console.error(err);
+    }
   );
 }
