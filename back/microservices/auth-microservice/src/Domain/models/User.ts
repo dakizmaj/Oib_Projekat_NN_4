@@ -9,7 +9,7 @@ export class User {
   @Column({ type: "varchar", unique: true, length: 100 })
   username!: string;
 
-  @Column({type: "enum", enum: UserRole, default: UserRole.SELLER })
+  @Column({type: "enum", enum: UserRole, default: UserRole.PRODAVAC })
   role!: UserRole;
 
   @Column({ type: "varchar", length: 255 })
@@ -17,6 +17,9 @@ export class User {
 
   @Column({ type: "varchar", length: 255, unique: true })
   email!: string;
+
+  @Column({ type: "varchar", length: 255 })
+  fullname!: string;
 
   @Column({ type: "longtext", nullable: true })
   profileImage!: string | null;

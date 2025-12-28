@@ -3,5 +3,6 @@ export interface UserDTO {
   username: string;
   email: string;
   role: string;
-  profileImage: string;
+  fullname: string;
+  profileImage?: string;
 }

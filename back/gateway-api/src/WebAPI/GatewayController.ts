@@ -19,8 +19,8 @@ export class GatewayController {
     this.router.post("/register", this.register.bind(this));
 
     // Users
-    this.router.get("/users", authenticate, authorize("admin"), this.getAllUsers.bind(this));
-    this.router.get("/users/:id", authenticate, authorize("admin", "seller"), this.getUserById.bind(this));
+    this.router.get("/users", authenticate, authorize("administrator"), this.getAllUsers.bind(this));
+    this.router.get("/users/:id", authenticate, authorize("administrator", "menadzer_prodaje", "prodavac"), this.getUserById.bind(this));
   }
 
   // Auth

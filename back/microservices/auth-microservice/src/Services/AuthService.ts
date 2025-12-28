@@ -49,6 +49,7 @@ export class AuthService implements IAuthService {
       email: data.email,
       role: data.role,
       password: hashedPassword,
+      fullname: data.fullname,
       profileImage: data.profileImage ?? null,
     });
 
