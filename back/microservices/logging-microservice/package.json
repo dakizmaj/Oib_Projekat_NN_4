@@ -15,7 +15,7 @@
     "dotenv": "^17.2.3",
     "eslint-plugin-neverthrow": "^1.1.4",
     "express": "^5.1.0",
-    "mysql": "^2.18.1",
+    "mysql2": "^3.16.0",
     "neverthrow": "^8.2.0",
     "typeorm": "^0.3.28"
   },
