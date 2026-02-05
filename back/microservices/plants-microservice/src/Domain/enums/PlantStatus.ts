@@ -1,5 +1,5 @@
 export enum PlantStatus {
-  PLANTED = "posađena",
+  PLANTED = "posadjena",
   HARVESTED = "ubrana",
-  PROCESSED = "prerađena"
+  PROCESSED = "preradjena"
 }
