@@ -16,4 +16,10 @@ export const Db = new DataSource({
   synchronize: true, // automatsko kreiranje tabela u bazi
   logging: false, // debug sql gresaka
   entities: [User],
+  connectorPackage: "mysql2",
+  extra: {
+    authPlugins: {
+      mysql_native_password: () => require("mysql2/lib/auth_plugins/mysql_native_password")
+    }
+  }
 });
