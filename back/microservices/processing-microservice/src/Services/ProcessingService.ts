@@ -153,14 +153,26 @@ export class ProcessingService implements IProcessingService {
 
   private async harvestPlantsFromService(commonName: string, quantity: number): Promise<PlantDTO[]> {
     try {
-      const response = await this.plantsClient.post<PlantDTO[]>("/plants/harvest", {
-        commonName,
-        quantity,
-      });
-      return response.data;
+      // Dobavi listu ubranih biljaka sa datim nazivom
+      const response = await this.plantsClient.get<PlantDTO[]>(`/plants/available/${commonName}`);
+      const availablePlants = response.data;
+
+      if (availablePlants.length === 0) {
+        throw new Error(`Nema ubranih biljaka sa nazivom "${commonName}". Prvo uberi biljke na stranici Proizvodnja.`);
+      }
+
+      // Uzmi potreban broj biljaka
+      const plantsToUse = availablePlants.slice(0, quantity);
+
+      await this.logger.log(
+        `Pronađeno ${availablePlants.length} ubranih biljaka, koristi se ${plantsToUse.length}`,
+        "INFO"
+      );
+
+      return plantsToUse;
     } catch (error) {
-      await this.logger.log(`Greška pri berbi biljaka: ${(error as Error).message}`, "ERROR");
-      throw new Error(`Nije moguće ubrati biljke iz mikroservisa proizvodnje: ${(error as Error).message}`);
+      await this.logger.log(`Greška pri dobijanju ubranih biljaka: ${(error as Error).message}`, "ERROR");
+      throw new Error(`Nije moguće dobiti ubrane biljke iz mikroservisa proizvodnje: ${(error as Error).message}`);
     }
   }
 
@@ -238,13 +250,12 @@ export class ProcessingService implements IProcessingService {
   private mapToDTO(perfume: Perfume): PerfumeDTO {
     return {
       id: perfume.id,
-      name: perfume.name,
-      type: perfume.type,
+      perfumeName: perfume.name,
+      perfumeType: perfume.type,
       netVolume: perfume.netVolume,
-      serialNumber: perfume.serialNumber,
-      plantId: perfume.plantId,
-      expirationDate: perfume.expirationDate,
-      createdAt: perfume.createdAt,
+      serialNumber: perfume.serialNumber || null,
+      productionDate: perfume.createdAt ? new Date(perfume.createdAt).toISOString() : new Date().toISOString(),
+      expirationDate: new Date(perfume.expirationDate).toISOString(),
     };
   }
 }

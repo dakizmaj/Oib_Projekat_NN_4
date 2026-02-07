@@ -1,11 +1,9 @@
-import { PerfumeType } from "../enums/PerfumeType";
-
 export interface PerfumeDTO {
   id?: number;
-  perfumeName: string;
-  perfumeType: PerfumeType;
-  netVolume: number;
   serialNumber: string | null;
+  perfumeName: string;
+  perfumeType: "parfem" | "kolonjska voda";
+  netVolume: number;
   productionDate: string;
   expirationDate: string;
 }

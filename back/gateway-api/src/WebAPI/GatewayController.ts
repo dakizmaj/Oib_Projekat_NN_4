@@ -131,9 +131,12 @@ export class GatewayController {
   private async startProcessing(req: Request, res: Response): Promise<void> {
     try {
       const request: ProcessingRequest = req.body;
+      console.log("[Gateway] Processing request received:", JSON.stringify(request, null, 2));
       const result = await this.gatewayService.startProcessing(request);
+      console.log("[Gateway] Processing result:", result);
       res.status(200).json(result);
     } catch (err) {
+      console.error("[Gateway] Processing error:", err);
       res.status(500).json({ message: (err as Error).message });
     }
   }
