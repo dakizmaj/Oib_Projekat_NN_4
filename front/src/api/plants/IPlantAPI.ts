@@ -6,4 +6,6 @@ export interface IPlantAPI {
   createPlant(plant: PlantDTO, token: string): Promise<PlantDTO>;
   updatePlant(id: number, plant: PlantDTO, token: string): Promise<PlantDTO>;
   deletePlant(id: number, token: string): Promise<void>;
+  harvestPlants(commonName: string, quantity: number, token: string): Promise<PlantDTO[]>;
+  adjustAromaStrength(plantId: number, percentageChange: number, token: string): Promise<PlantDTO>;
 }

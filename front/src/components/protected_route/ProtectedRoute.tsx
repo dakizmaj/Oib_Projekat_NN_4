@@ -4,7 +4,7 @@ import { useAuth } from "../../hooks/useAuthHook";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
-  requiredRole: string;
+  requiredRole?: string;
   redirectTo?: string;
 };
 
@@ -47,7 +47,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
-  if (!requiredRole || !requiredRole.toLowerCase().includes(user?.role.toLowerCase() ?? "")) {
+  // If requiredRole is specified, check if user has that role
+  if (requiredRole && !requiredRole.toLowerCase().includes(user?.role.toLowerCase() ?? "")) {
     return (
       <div className="overlay">
         <div className="window" style={{ width: "450px" }}>

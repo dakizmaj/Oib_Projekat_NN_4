@@ -12,14 +12,7 @@ export const Db = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  ssl: { rejectUnauthorized: false },
   synchronize: true, // automatsko kreiranje tabela u bazi
   logging: false, // debug sql gresaka
   entities: [User],
-  connectorPackage: "mysql2",
-  extra: {
-    authPlugins: {
-      mysql_native_password: () => require("mysql2/lib/auth_plugins/mysql_native_password")
-    }
-  }
 });

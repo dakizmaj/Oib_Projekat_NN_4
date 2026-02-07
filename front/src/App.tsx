@@ -1,9 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import { AuthPage } from "./pages/AuthPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { PlantsPage } from "./pages/PlantsPage";
+import { ProcessingPage } from "./pages/ProcessingPage";
+import { PerfumesPage } from "./pages/PerfumesPage";
 import { IAuthAPI } from "./api/auth/IAuthAPI";
 import { AuthAPI } from "./api/auth/AuthAPI";
 import { UserAPI } from "./api/users/UserAPI";
 import { IUserAPI } from "./api/users/IUserAPI";
+import { ProtectedRoute } from "./components/protected_route/ProtectedRoute";
 
 const auth_api: IAuthAPI = new AuthAPI();
 const user_api: IUserAPI = new UserAPI();
@@ -12,14 +17,38 @@ function App() {
   return (
     <>
       <Routes>
-        {/* <Route
+        <Route
           path="/dashboard"
           element={
-            <ProtectedRoute requiredRole="admin,seller">
-              <DashboardPage userAPI={user_api} anotherAPI={API} />
+            <ProtectedRoute>
+              <DashboardPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
+        <Route
+          path="/plants"
+          element={
+            <ProtectedRoute>
+              <PlantsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/processing"
+          element={
+            <ProtectedRoute>
+              <ProcessingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/perfumes"
+          element={
+            <ProtectedRoute>
+              <PerfumesPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/" element={<AuthPage authAPI={auth_api} />} />
       </Routes>
     </>

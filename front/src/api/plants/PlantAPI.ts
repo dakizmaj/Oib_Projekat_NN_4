@@ -51,4 +51,22 @@ export class PlantAPI implements IPlantAPI {
       headers: this.getAuthHeaders(token),
     });
   }
+
+  async harvestPlants(commonName: string, quantity: number, token: string): Promise<PlantDTO[]> {
+    const response: AxiosResponse<PlantDTO[]> = await this.axiosInstance.post(
+      "/plants/harvest",
+      { commonName, quantity },
+      { headers: this.getAuthHeaders(token) }
+    );
+    return response.data;
+  }
+
+  async adjustAromaStrength(plantId: number, percentageChange: number, token: string): Promise<PlantDTO> {
+    const response: AxiosResponse<PlantDTO> = await this.axiosInstance.put(
+      `/plants/${plantId}/adjust-aroma`,
+      { percentageChange },
+      { headers: this.getAuthHeaders(token) }
+    );
+    return response.data;
+  }
 }
