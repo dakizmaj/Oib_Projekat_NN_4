@@ -7,18 +7,25 @@ import { UserDTO } from "../Domain/DTOs/UserDTO";
 import { PlantDTO } from "../Domain/DTOs/PlantDTO";
 import { PerfumeDTO } from "../Domain/DTOs/PerfumeDTO";
 import { ProcessingRequest, ProcessingResult } from "../Domain/types/ProcessingTypes";
+import { SalesType } from "../Domain/types/SalesType";
+import { ReceiptDTO } from "../Domain/DTOs/ReceiptDTO";
+import { MonthData, Revenue, YearData } from "../Domain/types/AnalysisTypes";
 
 export class GatewayService implements IGatewayService {
   private readonly authClient: AxiosInstance;
   private readonly userClient: AxiosInstance;
   private readonly plantsClient: AxiosInstance;
   private readonly processingClient: AxiosInstance;
+  private readonly salesClient: AxiosInstance;
+  private readonly analysisClient: AxiosInstance;
 
   constructor() {
     const authBaseURL = process.env.AUTH_SERVICE_API;
     const userBaseURL = process.env.USER_SERVICE_API;
     const plantsBaseURL = process.env.PLANTS_SERVICE_API || "http://localhost:5003/api/v1";
     const processingBaseURL = process.env.PROCESSING_SERVICE_API || "http://localhost:5004/api/v1";
+    const salseBaseURL = process.env.SALES_SERVICE_API || "http://localhost:5005/api/v1";
+    const analysisBaseURL = process.env.ANALYSIS_SERVICE_API || "http://localhost:5006/api/v1"
 
     this.authClient = axios.create({
       baseURL: authBaseURL,
@@ -43,6 +50,18 @@ export class GatewayService implements IGatewayService {
       headers: { "Content-Type": "application/json" },
       timeout: 5000,
     });
+
+    this.salesClient = axios.create({
+      baseURL: salseBaseURL,
+      headers: { "Content-Type": "application/json" },
+      timeout: 5000,
+    });
+
+    this.analysisClient = axios.create({
+      baseURL: analysisBaseURL,
+      headers: { "Content-Type": "application/json" },
+      timeout: 5000,
+    })
   }
 
   // Auth microservice
@@ -119,6 +138,49 @@ export class GatewayService implements IGatewayService {
 
   async getPerfumesByType(type: string): Promise<PerfumeDTO[]> {
     const response = await this.processingClient.get<PerfumeDTO[]>(`/perfumes/type/${type}`);
+    return response.data;
+  }
+
+   // Sales
+  async createPerfume(data: PerfumeDTO): Promise<PerfumeDTO>{
+    const response = await this.salesClient.post<PerfumeDTO>(`/sales/perfume`, data);
+    return response.data;
+  }
+  async getAllPerfumesForSale(): Promise<PerfumeDTO[]>{
+    const response = await this.salesClient.get<PerfumeDTO[]>(`/sales/perfumes`);
+    return response.data;
+  }
+  async perfumesToSend(perfumeId: number, amount: number): Promise<SalesType>{
+    const response = await this.salesClient.get<SalesType>(`/sales/send`, perfumeId, amount);
+    return response.data;
+  }
+  // Data Analysis
+  async createReceipt(receipt: ReceiptDTO): Promise<ReceiptDTO>{
+    const response = await this.analysisClient.post(`/data/reciept`, receipt);
+    return response.data;
+  }
+  async getAllReceipts(): Promise<ReceiptDTO[]>{
+    const response = await this.analysisClient.get(`/data/reciepts`);
+    return response.data;
+  }
+  async getRevenue(): Promise<Revenue>{
+    const response = await this.analysisClient.get(`/data/revenue`);
+    return response.data;
+  }
+  async getTopTen(): Promise<String[]>{
+    const response = await this.analysisClient.get(`/data/top`);
+    return response.data;
+  }
+  async getTopTenRevenue(): Promise<Revenue>{
+    const response = await this.analysisClient.get(`/data/revenue/top`);
+    return response.data;
+  }
+  async getRevenueByMonth(): Promise<MonthData[]>{
+    const response = await this.analysisClient.get(`/data/revenue/month`);
+    return response.data;
+  }
+  async getRevenueByYear(): Promise<YearData[]>{
+    const response = await this.analysisClient.get(`/data/revenue/year`);
     return response.data;
   }
 }

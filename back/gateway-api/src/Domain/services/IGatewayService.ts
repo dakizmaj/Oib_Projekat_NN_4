@@ -5,6 +5,9 @@ import { PlantDTO } from "../DTOs/PlantDTO";
 import { PerfumeDTO } from "../DTOs/PerfumeDTO";
 import { AuthResponseType } from "../types/AuthResponse";
 import { ProcessingRequest, ProcessingResult } from "../types/ProcessingTypes";
+import { SalesType } from "../types/SalesType";
+import { ReceiptDTO } from "../DTOs/ReceiptDTO";
+import { MonthData, Revenue, YearData } from "../types/AnalysisTypes";
 
 export interface IGatewayService {
   // Auth
@@ -27,4 +30,18 @@ export interface IGatewayService {
   getAllPerfumes(): Promise<PerfumeDTO[]>;
   getPerfumeById(id: number): Promise<PerfumeDTO>;
   getPerfumesByType(type: string): Promise<PerfumeDTO[]>;
+
+  // Sales
+  createPerfume(data: PerfumeDTO): Promise<PerfumeDTO>;
+  getAllPerfumesForSale(): Promise<PerfumeDTO[]>;
+  perfumesToSend(perfumeId: number, amount: number): Promise<SalesType>;
+
+  // Data Analysis
+  createReceipt(receipt: ReceiptDTO): Promise<ReceiptDTO>;
+  getAllReceipts(): Promise<ReceiptDTO[]>;
+  getRevenue(): Promise<Revenue>;
+  getTopTen(): Promise<String[]>;
+  getTopTenRevenue(): Promise<Revenue>;
+  getRevenueByMonth(): Promise<MonthData[]>;
+  getRevenueByYear(): Promise<YearData[]>;
 }

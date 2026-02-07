@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { Perfume } from "../Domain/models/Perfume";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ILogerService } from "../Domain/Services/ILogerService";
+import { SalesType } from "../Domain/types/SalesType";
 
 export class SalesService implements ISalesService{
     constructor(
@@ -39,14 +40,13 @@ export class SalesService implements ISalesService{
         return okAsync((items.map(p => (toDTO(p)))));
     }
     
-    async perfumesToSend(perfumeId: number, amount: number): Promise<ResultAsync<{ naziv: string; amount: number; }, string>> {
+    async perfumesToSend(perfumeId: number, amount: number): Promise<ResultAsync<SalesType, string>> {
         const found = await this.perfumeRepo.findOne({where: {id: perfumeId}});
         if(!found){
             await this.logger.log(`Greska pri slanju parfema`, "ERROR");
             return errAsync("Error");
         }
-        
-        return okAsync({naziv: found.naziv, amount: amount});
+        return okAsync({perfume: found, amount: amount});
     }
 }
 

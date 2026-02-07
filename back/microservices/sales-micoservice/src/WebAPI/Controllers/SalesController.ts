@@ -16,10 +16,24 @@ export class SalesController {
     }
 
     private initilaizeRoutes(): void {
+        this.router.post('/sales/perfume', this.createPerfume.bind(this));
         this.router.get('/sales/perfumes', this.getAllPerfumes.bind(this));
-        this.router.get('/sales/send/', this.perfumesToSend.bind(this));
+        this.router.get('/sales/send', this.perfumesToSend.bind(this));
     }
 
+    private async createPerfume(req: Request, res: Response): Promise<void>{
+        if(req.body.data == null){
+            res.status(400).json({errMesage: "Bad Request"});
+        }
+        const data: PerfumeDTO = req.body.data;
+        const answer = this.service.createPerfume(data);
+
+        (await answer).match(
+            (perfume) => {res.status(200).json({perfume})},
+            (err) => {res.status(500).json({message: err})}
+        )
+    }
+    
     private async getAllPerfumes(req: Request, res: Response): Promise<void> {
         const items = this.service.getAllPerfumes();
         (await items).match(

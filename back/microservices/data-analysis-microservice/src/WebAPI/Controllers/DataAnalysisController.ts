@@ -16,7 +16,7 @@ export class DataAnalysisController {
 
     private initializeRoutes(): void {
         this.routuer.get('/data/reciepts', this.getAllReciepts.bind(this));
-        this.routuer.post('/data/recipets', this.createReciept.bind(this));
+        this.routuer.post('/data/recipet', this.createReciept.bind(this));
         this.routuer.get('/data/revenue', this.getRevenue.bind(this));
         this.routuer.get('/data/top',this.getTopTen.bind(this));
         this.routuer.get('/data/revenue/top', this.getTopTenRevenue.bind(this));
