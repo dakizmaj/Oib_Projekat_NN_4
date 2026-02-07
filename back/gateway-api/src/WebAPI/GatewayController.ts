@@ -6,6 +6,8 @@ import { PlantDTO } from "../Domain/DTOs/PlantDTO";
 import { ProcessingRequest } from "../Domain/types/ProcessingTypes";
 import { authenticate } from "../Middlewares/authentification/AuthMiddleware";
 import { authorize } from "../Middlewares/authorization/AuthorizeMiddleware";
+import { PerfumeDTO } from "../Domain/DTOs/PerfumeDTO";
+import { ReceiptDTO } from "../Domain/DTOs/ReceiptDTO";
 
 export class GatewayController {
   private readonly router: Router;
@@ -36,6 +38,20 @@ export class GatewayController {
     this.router.get("/perfumes", this.getAllPerfumes.bind(this));
     this.router.get("/perfumes/:id", this.getPerfumeById.bind(this));
     this.router.get("/perfumes/type/:type", this.getPerfumesByType.bind(this));
+  
+    // Sales
+    this.router.post('/sales/perfume', this.createPerfume.bind(this));
+    this.router.get('/sales/perfumes', this.getAllPerfumes.bind(this));
+    this.router.get('/sales/send', this.perfumesToSend.bind(this));
+    
+    // Data Analysis
+    this.router.get('/data/reciepts', this.getAllReceipts.bind(this));
+    this.router.post('/data/recipet', this.createRecipet.bind(this));
+    this.router.get('/data/revenue', this.getRevenue.bind(this));
+    this.router.get('/data/top',this.getTopTen.bind(this));
+    this.router.get('/data/revenue/top', this.getTopTenRevenue.bind(this));
+    this.router.get('/data/revenue/month', this.getRevenueByMonth.bind(this));
+    this.router.get('/data/revenue/year', this.getRevenueByYear.bind(this));
   }
 
   // Auth
@@ -167,6 +183,100 @@ export class GatewayController {
       res.status(200).json(perfumes);
     } catch (err) {
       res.status(500).json({ message: (err as Error).message });
+    }
+  }
+
+  //Sales 
+  private async createPerfume(req:Request, res: Response): Promise<void>{
+    try{
+      const data: PerfumeDTO  = req.body;
+      const perfume = await this.gatewayService.createPerfume(data);
+      res.response(200).json(perfume);
+    }catch (err){
+      res.status(500).json({message: (err as Error).message});
+    }
+  }
+
+  private async getAllPerfumesForSale(req: Request, res: Response): Promise<void> {
+    try {
+      const perfumes = await this.gatewayService.getAllPerfumes();
+      res.status(200).json(perfumes);
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  }
+
+  private async perfumesToSend(req: Request, res:Response): Promise<void>{
+    try{
+      const {perfumeId, amount} = req.body;
+      const toSend = await this.gatewayService.perfumesToSend(perfumeId, amount);
+      res.status(200).json(toSend);
+    }catch (err){
+      res.status(404).json({ message: (err as Error).message});
+    }
+  }
+
+  //Data Analysis
+  private async createRecipet(req: Request, res:Response): Promise<void>{
+    try{
+      const data: ReceiptDTO = req.body;
+      const reciept = await this.gatewayService.createReceipt(data);
+      res.status(200).json(reciept);
+    }catch (err){
+      res.status(500).json({ message: (err as Error).message});
+    }
+  }
+
+  private async getAllReceipts(req: Request, res:Response): Promise<void>{
+    try{
+      const receipts = await this.gatewayService.getAllReceipts();
+      res.status(200).json(receipts);
+    }catch (err){
+      res.status(404).json({ message: (err as Error).message});
+    }
+  }
+
+  private async getRevenue(req: Request, res:Response): Promise<void>{
+    try{
+      const revenue = await this.gatewayService.getRevenue();
+      res.status(200).json(revenue);
+    }catch (err){
+      res.status(500).json({ message: (err as Error).message});
+    }
+  }
+
+  private async getTopTen(req: Request, res:Response): Promise<void>{
+    try{
+      const topTen = await this.gatewayService.getTopTen();
+      res.status(200).json(topTen);
+    }catch (err){
+      res.status(500).json({ message: (err as Error).message});
+    }
+  }
+
+  private async getTopTenRevenue(req: Request, res:Response): Promise<void>{
+    try{
+      const revenue = await this.gatewayService.getTopTenRevenue();
+      res.status(200).json(revenue);
+    }catch (err){
+      res.status(500).json({ message: (err as Error).message});
+    }
+  }
+  private async getRevenueByMonth(req: Request, res:Response): Promise<void>{
+    try{
+      const revenue = await this.gatewayService.getRevenueByMonth();
+      res.status(200).json(revenue);
+    }catch (err){
+      res.status(500).json({ message: (err as Error).message});
+    }
+  }
+
+  private async getRevenueByYear(req: Request, res:Response): Promise<void>{
+    try{
+      const revenue = await this.gatewayService.getRevenueByYear();
+      res.status(200).json(revenue);
+    }catch (err){
+      res.status(500).json({ message: (err as Error).message});
     }
   }
 

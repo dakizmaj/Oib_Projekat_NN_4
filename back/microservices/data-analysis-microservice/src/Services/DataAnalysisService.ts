@@ -4,6 +4,7 @@ import { Receipt } from "../Domain/Models/Receipt";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ReceiptDTO } from "../Domain/DTOs/ReceiptDTO";
 import { ILogerService } from "../Domain/Services/ILogerService";
+import { MonthData, Revenue, YearData } from "../Domain/types/AnalysisTypes";
 
 export class DataAnalysisService implements IDataAnalysisService{
     constructor(
@@ -39,13 +40,13 @@ export class DataAnalysisService implements IDataAnalysisService{
         return okAsync((items.map((p: Receipt) => (toDTO(p)))));
     }
 
-    async getRevenue(): Promise<ResultAsync<number, string>> {
+    async getRevenue(): Promise<ResultAsync<Revenue, string>> {
         const sum = await this.recieptRepo.sum("iznos");
         if(!sum){
             this.logger.log(`Greska pri dobavljanju zarade`, "ERROR");
             return errAsync("Greska pri dobavljanju zarade");
         }
-        return okAsync(sum);
+        return okAsync({revenue: sum});
     }
 
     async getTopTen(): Promise<ResultAsync<string[], string>> {
@@ -58,7 +59,7 @@ export class DataAnalysisService implements IDataAnalysisService{
         return okAsync(findMostSold(items));
     }
 
-    async getTopTenRevenue(): Promise<ResultAsync<number, string>> {
+    async getTopTenRevenue(): Promise<ResultAsync<Revenue, string>> {
         const items = await this.recieptRepo.find();
         if(!items){
             this.logger.log(`Greska pri nabavljanju najprodavanijih`, "ERROR");
@@ -80,10 +81,10 @@ export class DataAnalysisService implements IDataAnalysisService{
             salesSum += receipt.iznos;
         });
 
-        return okAsync(salesSum);
+        return okAsync({revenue: salesSum});
     }
 
-    async getRevenueByMonth(): Promise<ResultAsync<{month: string, revenue: number}[], string>> {
+    async getRevenueByMonth(): Promise<ResultAsync<MonthData[], string>> {
         const items = await this.recieptRepo.createQueryBuilder('month')
         .select("MONTH(reciept.datumProdaje)", "month")
         .addSelect("SUM(reciept.iznos)", "revenue")
@@ -97,7 +98,7 @@ export class DataAnalysisService implements IDataAnalysisService{
         return okAsync(items);
     }
 
-    async getRevenueByYear(): Promise<ResultAsync<{year: string, revenue: number}[], string>> {
+    async getRevenueByYear(): Promise<ResultAsync<YearData[], string>> {
         const items = await this.recieptRepo.createQueryBuilder('month')
         .select("YEAR(reciept.datumProdaje)", "year")
         .addSelect("SUM(reciept.iznos)", "revenue")
