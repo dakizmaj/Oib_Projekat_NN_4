@@ -3,14 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { PlantAPI } from "../api/plants/PlantAPI";
 import { PlantDTO } from "../models/plants/PlantDTO";
 import { useAuth } from "../hooks/useAuthHook";
+import axios from "axios";
 
 const plantAPI = new PlantAPI();
+
+type LogEntry = {
+  id: number;
+  kind: string;
+  description: string;
+  date: string;
+  time: string;
+};
 
 export const PlantsPage: React.FC = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
   
   const [plants, setPlants] = useState<PlantDTO[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showAdjustModal, setShowAdjustModal] = useState(false);
@@ -25,6 +35,9 @@ export const PlantsPage: React.FC = () => {
 
   useEffect(() => {
     loadPlants();
+    loadLogs();
+    const interval = setInterval(loadLogs, 5000); // Refresh logs every 5 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const loadPlants = async () => {
@@ -37,6 +50,23 @@ export const PlantsPage: React.FC = () => {
       console.error("Failed to load plants:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadLogs = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/api/v1/logs");
+      const allLogs = response.data;
+      // Filter logs related to plants (proizvodnja)
+      const plantLogs = allLogs.filter((log: LogEntry) => 
+        log.description.toLowerCase().includes("biljk") ||
+        log.description.toLowerCase().includes("zasađen") ||
+        log.description.toLowerCase().includes("ubar") ||
+        log.description.toLowerCase().includes("jačin")
+      );
+      setLogs(plantLogs.slice(0, 10)); // Show last 10 logs
+    } catch (error) {
+      console.error("Failed to load logs:", error);
     }
   };
 
@@ -397,6 +427,66 @@ export const PlantsPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Dnevnik proizvodnje */}
+        <div className="window" style={{ marginTop: "24px", padding: "24px" }}>
+          <h3 style={{ marginTop: 0, marginBottom: "16px" }}>📋 Dnevnik Proizvodnje</h3>
+          {logs.length === 0 ? (
+            <p style={{ color: "var(--win11-text-secondary)", textAlign: "center", padding: "24px 0" }}>
+              Nema zabeleženih događaja
+            </p>
+          ) : (
+            <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+              {logs.map((log) => {
+                const logKindColor = 
+                  log.kind === "LOGKIND_INFO" ? "#10b981" :
+                  log.kind === "LOGKIND_WARNING" ? "#f59e0b" :
+                  log.kind === "LOGKIND_ERROR" ? "#ef4444" : "#6366f1";
+                
+                const logKindIcon = 
+                  log.kind === "LOGKIND_INFO" ? "ℹ️" :
+                  log.kind === "LOGKIND_WARNING" ? "⚠️" :
+                  log.kind === "LOGKIND_ERROR" ? "❌" : "🔔";
+
+                return (
+                  <div
+                    key={log.id}
+                    style={{
+                      padding: "12px 16px",
+                      borderBottom: "1px solid var(--win11-divider)",
+                      display: "flex",
+                      gap: "12px",
+                      alignItems: "flex-start"
+                    }}
+                  >
+                    <span style={{ fontSize: "18px" }}>{logKindIcon}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: "14px", color: "var(--win11-text)" }}>
+                        {log.description}
+                      </div>
+                      <div style={{ fontSize: "12px", color: "var(--win11-text-secondary)", marginTop: "4px" }}>
+                        {new Date(log.date).toLocaleDateString("sr-RS")} {" "}
+                        {new Date(log.time).toLocaleTimeString("sr-RS")}
+                      </div>
+                    </div>
+                    <div 
+                      style={{ 
+                        fontSize: "10px", 
+                        padding: "4px 8px", 
+                        borderRadius: "4px",
+                        background: logKindColor + "20",
+                        color: logKindColor,
+                        fontWeight: 600
+                      }}
+                    >
+                      {log.kind.replace("LOGKIND_", "")}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
     </>

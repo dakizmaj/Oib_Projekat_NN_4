@@ -1,8 +1,28 @@
-import { ResultAsync } from "neverthrow";
+import { Result } from "neverthrow";
 import { PackagingDTO } from "../DTOs/PackagingDTO";
+import { WarehouseDTO } from "../DTOs/WarehouseDTO";
+
+export type PackPerfumesRequest = {
+  perfumeType: string;
+  quantity: number;
+  netVolume: number;
+  warehouseId: number;
+  sender: string;
+  destinationAddress: string;
+  plantCommonName: string;
+};
 
 export interface IWarehouseService {
-  // getPerfumes(perfumeIds: number[]): Promise<ResultAsync<any, any>>;
-  sendPackaging(packaging: PackagingDTO): Promise<ResultAsync<any, any>>;
-  waitForDelivery(packages: PackagingDTO[]): Promise<ResultAsync<any, any>>;
+  // Warehouse operations
+  getAllWarehouses(): Promise<Result<WarehouseDTO[], Error>>;
+  getWarehouseById(id: number): Promise<Result<WarehouseDTO, Error>>;
+
+  // Packaging operations
+  getAllPackages(): Promise<Result<PackagingDTO[], Error>>;
+  getPackagesByWarehouse(warehouseId: number): Promise<Result<PackagingDTO[], Error>>;
+  createPackage(packageData: Omit<PackagingDTO, 'id' | 'createdAt'>): Promise<Result<PackagingDTO, Error>>;
+  packPerfumes(request: PackPerfumesRequest): Promise<Result<PackagingDTO, Error>>;
+  
+  // Send packages with strategy-based timing
+  sendPackages(packageIds: number[]): Promise<Result<{ message: string; sentCount: number }, Error>>;
 }

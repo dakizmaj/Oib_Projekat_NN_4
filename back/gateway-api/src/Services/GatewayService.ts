@@ -10,6 +10,7 @@ import { ProcessingRequest, ProcessingResult } from "../Domain/types/ProcessingT
 import { SalesType } from "../Domain/types/SalesType";
 import { ReceiptDTO } from "../Domain/DTOs/ReceiptDTO";
 import { MonthData, Revenue, YearData } from "../Domain/types/AnalysisTypes";
+import { WarehouseDTO, PackagingDTO } from "../Domain/types/WarehouseTypes";
 
 export class GatewayService implements IGatewayService {
   private readonly authClient: AxiosInstance;
@@ -18,6 +19,8 @@ export class GatewayService implements IGatewayService {
   private readonly processingClient: AxiosInstance;
   private readonly salesClient: AxiosInstance;
   private readonly analysisClient: AxiosInstance;
+  private readonly warehouseClient: AxiosInstance;
+  private readonly loggingClient: AxiosInstance;
 
   constructor() {
     const authBaseURL = process.env.AUTH_SERVICE_API;
@@ -25,7 +28,9 @@ export class GatewayService implements IGatewayService {
     const plantsBaseURL = process.env.PLANTS_SERVICE_API || "http://localhost:5003/api/v1";
     const processingBaseURL = process.env.PROCESSING_SERVICE_API || "http://localhost:5004/api/v1";
     const salseBaseURL = process.env.SALES_SERVICE_API || "http://localhost:5005/api/v1";
-    const analysisBaseURL = process.env.ANALYSIS_SERVICE_API || "http://localhost:5006/api/v1"
+    const analysisBaseURL = process.env.ANALYSIS_SERVICE_API || "http://localhost:5006/api/v1";
+    const warehouseBaseURL = process.env.WAREHOUSE_SERVICE_API || "http://localhost:5005/api/v1";
+    const loggingBaseURL = process.env.LOGGING_SERVICE_API || "http://localhost:5002/api/v1";
 
     this.authClient = axios.create({
       baseURL: authBaseURL,
@@ -61,7 +66,19 @@ export class GatewayService implements IGatewayService {
       baseURL: analysisBaseURL,
       headers: { "Content-Type": "application/json" },
       timeout: 5000,
-    })
+    });
+
+    this.warehouseClient = axios.create({
+      baseURL: warehouseBaseURL,
+      headers: { "Content-Type": "application/json" },
+      timeout: 5000,
+    });
+
+    this.loggingClient = axios.create({
+      baseURL: loggingBaseURL,
+      headers: { "Content-Type": "application/json" },
+      timeout: 5000,
+    });
   }
 
   // Auth microservice
@@ -151,7 +168,9 @@ export class GatewayService implements IGatewayService {
     return response.data;
   }
   async perfumesToSend(perfumeId: number, amount: number): Promise<SalesType>{
-    const response = await this.salesClient.get<SalesType>(`/sales/send`, perfumeId, amount);
+    const response = await this.salesClient.get<SalesType>(`/sales/send`, {
+      params: { perfumeId, amount }
+    });
     return response.data;
   }
   // Data Analysis
@@ -181,6 +200,56 @@ export class GatewayService implements IGatewayService {
   }
   async getRevenueByYear(): Promise<YearData[]>{
     const response = await this.analysisClient.get(`/data/revenue/year`);
+    return response.data;
+  }
+
+  // Warehouse microservice
+  async getAllWarehouses(): Promise<WarehouseDTO[]> {
+    const response = await this.warehouseClient.get("/warehouses");
+    return response.data;
+  }
+
+  async getWarehouseById(id: number): Promise<WarehouseDTO> {
+    const response = await this.warehouseClient.get(`/warehouses/${id}`);
+    return response.data;
+  }
+
+  async getAllPackages(): Promise<PackagingDTO[]> {
+    const response = await this.warehouseClient.get("/packages");
+    return response.data;
+  }
+
+  async getPackagesByWarehouse(warehouseId: number): Promise<PackagingDTO[]> {
+    const response = await this.warehouseClient.get(`/packages/warehouse/${warehouseId}`);
+    return response.data;
+  }
+
+  async createPackage(packageData: Omit<PackagingDTO, 'id' | 'createdAt'>): Promise<PackagingDTO> {
+    const response = await this.warehouseClient.post("/packages", packageData);
+    return response.data;
+  }
+
+  async packPerfumes(request: {
+    perfumeType: string;
+    quantity: number;
+    netVolume: number;
+    warehouseId: number;
+    sender: string;
+    destinationAddress: string;
+    plantCommonName: string;
+  }): Promise<PackagingDTO> {
+    const response = await this.warehouseClient.post("/packages/pack-perfumes", request);
+    return response.data;
+  }
+
+  async sendPackages(packageIds: number[]): Promise<{ message: string; sentCount: number }> {
+    const response = await this.warehouseClient.post("/packages/send", { packageIds });
+    return response.data;
+  }
+
+  // Logging microservice
+  async getAllLogs(): Promise<any[]> {
+    const response = await this.loggingClient.get("/logs");
     return response.data;
   }
 }

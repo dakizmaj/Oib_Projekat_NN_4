@@ -45,6 +45,20 @@ export class LoggingService implements ILoggingService {
   
   
   
+  async getAll(): Promise<ResultAsync<LogDTO[], LoggingError>> {
+    try {
+      const logs = await this.loggingRepo.find({
+        order: { date: 'DESC', time: 'DESC' }
+      });
+      
+      return okAsync(logs.map(toDTO));
+    } catch (error) {
+      return errAsync(LoggingError.UNKNOWN);
+    }
+  }
+  
+  
+  
   async update(log: LogDTO): Promise<ResultAsync<LogDTO, LoggingError>> {
     const _existing = this.loggingRepo.findOne({
       where: { id: log.id }

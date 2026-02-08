@@ -16,4 +16,9 @@ export const Db = new DataSource({
   synchronize: true, // automatsko kreiranje tabela u bazi
   logging: false, // debug sql gresaka
   entities: [Log],
+  extra: {
+    authPlugins: {
+      mysql_native_password: () => () => Buffer.from([]),
+    },
+  },
 });

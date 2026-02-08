@@ -4,6 +4,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { PlantsPage } from "./pages/PlantsPage";
 import { ProcessingPage } from "./pages/ProcessingPage";
 import { PerfumesPage } from "./pages/PerfumesPage";
+import { WarehousePage } from "./pages/WarehousePage";
 import { IAuthAPI } from "./api/auth/IAuthAPI";
 import { AuthAPI } from "./api/auth/AuthAPI";
 import { UserAPI } from "./api/users/UserAPI";
@@ -46,6 +47,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PerfumesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/warehouse"
+          element={
+            <ProtectedRoute>
+              <WarehousePage />
             </ProtectedRoute>
           }
         />

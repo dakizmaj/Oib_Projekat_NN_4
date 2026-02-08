@@ -26,6 +26,9 @@ export class AuthService implements IAuthService {
       userData: {
         id: user.id,
         username: user.username,
+        firstName: user.fullname.split(' ')[0] || user.fullname,
+        lastName: user.fullname.split(' ').slice(1).join(' ') || '',
+        email: user.email,
         role: user.role,
       },
     };
@@ -60,6 +63,9 @@ export class AuthService implements IAuthService {
       userData: {
         id: savedUser.id,
         username: savedUser.username,
+        firstName: savedUser.fullname.split(' ')[0] || savedUser.fullname,
+        lastName: savedUser.fullname.split(' ').slice(1).join(' ') || '',
+        email: savedUser.email,
         role: savedUser.role,
       },
     };

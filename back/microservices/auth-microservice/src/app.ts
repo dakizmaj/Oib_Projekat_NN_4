@@ -14,33 +14,36 @@ import { LogerService } from './Services/LogerService';
 
 dotenv.config({ quiet: true });
 
-const app = express();
+export async function createApp() {
+  // Initialize database first
+  await initialize_database();
 
-// Read CORS settings from environment
-const corsOrigin = process.env.CORS_ORIGIN ?? "*";
-const corsMethods = process.env.CORS_METHODS?.split(",").map(m => m.trim()) ?? ["POST"];
+  const app = express();
 
-// Protected microservice from unauthorized access
-app.use(cors({
-  origin: corsOrigin,
-  methods: corsMethods,
-}));
+  // Read CORS settings from environment
+  const corsOrigin = process.env.CORS_ORIGIN ?? "*";
+  const corsMethods = process.env.CORS_METHODS?.split(",").map(m => m.trim()) ?? ["POST"];
 
-app.use(express.json());
+  // Protected microservice from unauthorized access
+  app.use(cors({
+    origin: corsOrigin,
+    methods: corsMethods,
+  }));
 
-initialize_database();
+  app.use(express.json());
 
-// ORM Repositories
-const userRepository: Repository<User> = Db.getRepository(User);
+  // ORM Repositories - initialized after database connects
+  const userRepository: Repository<User> = Db.getRepository(User);
 
-// Services
-const authService: IAuthService = new AuthService(userRepository);
-const logerService: ILogerService = new LogerService();
+  // Services
+  const authService: IAuthService = new AuthService(userRepository);
+  const logerService: ILogerService = new LogerService();
 
-// WebAPI routes
-const authController = new AuthController(authService, logerService);
+  // WebAPI routes
+  const authController = new AuthController(authService, logerService);
 
-// Registering routes
-app.use('/api/v1', authController.getRouter());
+  // Registering routes
+  app.use('/api/v1', authController.getRouter());
 
-export default app;
+  return app;
+}

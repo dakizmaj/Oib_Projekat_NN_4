@@ -52,6 +52,18 @@ export class GatewayController {
     this.router.get('/data/revenue/top', this.getTopTenRevenue.bind(this));
     this.router.get('/data/revenue/month', this.getRevenueByMonth.bind(this));
     this.router.get('/data/revenue/year', this.getRevenueByYear.bind(this));
+
+    // Warehouse (NO AUTH for testing)
+    this.router.get("/warehouses", this.getAllWarehouses.bind(this));
+    this.router.get("/warehouses/:id", this.getWarehouseById.bind(this));
+    this.router.get("/packages", this.getAllPackages.bind(this));
+    this.router.get("/packages/warehouse/:warehouseId", this.getPackagesByWarehouse.bind(this));
+    this.router.post("/packages", this.createPackage.bind(this));
+    this.router.post("/packages/pack-perfumes", this.packPerfumes.bind(this));
+    this.router.post("/packages/send", this.sendPackages.bind(this));
+
+    // Logging (NO AUTH for testing)
+    this.router.get("/logs", this.getAllLogs.bind(this));
   }
 
   // Auth
@@ -191,7 +203,7 @@ export class GatewayController {
     try{
       const data: PerfumeDTO  = req.body;
       const perfume = await this.gatewayService.createPerfume(data);
-      res.response(200).json(perfume);
+      res.status(200).json(perfume);
     }catch (err){
       res.status(500).json({message: (err as Error).message});
     }
@@ -277,6 +289,85 @@ export class GatewayController {
       res.status(200).json(revenue);
     }catch (err){
       res.status(500).json({ message: (err as Error).message});
+    }
+  }
+
+  // Warehouse
+  private async getAllWarehouses(req: Request, res: Response): Promise<void> {
+    try {
+      const warehouses = await this.gatewayService.getAllWarehouses();
+      res.status(200).json(warehouses);
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  }
+
+  private async getWarehouseById(req: Request, res: Response): Promise<void> {
+    try {
+      const id = parseInt(req.params.id);
+      const warehouse = await this.gatewayService.getWarehouseById(id);
+      res.status(200).json(warehouse);
+    } catch (err) {
+      res.status(404).json({ message: (err as Error).message });
+    }
+  }
+
+  private async getAllPackages(req: Request, res: Response): Promise<void> {
+    try {
+      const packages = await this.gatewayService.getAllPackages();
+      res.status(200).json(packages);
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  }
+
+  private async getPackagesByWarehouse(req: Request, res: Response): Promise<void> {
+    try {
+      const warehouseId = parseInt(req.params.warehouseId);
+      const packages = await this.gatewayService.getPackagesByWarehouse(warehouseId);
+      res.status(200).json(packages);
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  }
+
+  private async createPackage(req: Request, res: Response): Promise<void> {
+    try {
+      const packageData = req.body;
+      const result = await this.gatewayService.createPackage(packageData);
+      res.status(201).json(result);
+    } catch (err) {
+      res.status(400).json({ message: (err as Error).message });
+    }
+  }
+
+  private async packPerfumes(req: Request, res: Response): Promise<void> {
+    try {
+      const request = req.body;
+      const result = await this.gatewayService.packPerfumes(request);
+      res.status(201).json(result);
+    } catch (err) {
+      res.status(400).json({ message: (err as Error).message });
+    }
+  }
+
+  private async sendPackages(req: Request, res: Response): Promise<void> {
+    try {
+      const { packageIds } = req.body;
+      const result = await this.gatewayService.sendPackages(packageIds);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(400).json({ message: (err as Error).message });
+    }
+  }
+
+  // Logging
+  private async getAllLogs(req: Request, res: Response): Promise<void> {
+    try {
+      const logs = await this.gatewayService.getAllLogs();
+      res.status(200).json(logs);
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
     }
   }
 

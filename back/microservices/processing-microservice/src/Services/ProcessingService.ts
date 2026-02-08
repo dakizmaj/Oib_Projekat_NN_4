@@ -60,8 +60,11 @@ export class ProcessingService implements IProcessingService {
       }
 
       // Proveri jačinu arome i balansiraj ako treba
+      console.log('🔍 Provera jačine arome za', harvestedPlants.length, 'biljaka...');
       for (const plant of harvestedPlants) {
+        console.log(`   Biljka ${plant.commonName} (ID: ${plant.id}): aromaStrength = ${plant.aromaStrength}`);
         if (plant.aromaStrength > 4.0) {
+          console.log(`   ⚠️  PREKORAČENJE! Pokretanje balansiranja...`);
           await this.balanceAroma(plant);
         }
       }
@@ -182,25 +185,38 @@ export class ProcessingService implements IProcessingService {
       const excess = plant.aromaStrength - 4.0;
       const excessPercentage = (excess / 4.0) * 100;
 
+      console.log(`\n🔄 BALANSIRANJE AROME:`);
+      console.log(`   Stara biljka: ${plant.commonName} (ID: ${plant.id})`);
+      console.log(`   Jačina: ${plant.aromaStrength} (granica: 4.0)`);
+      console.log(`   Prekoračenje: ${excessPercentage.toFixed(2)}%`);
+
       await this.logger.log(
         `Biljka ${plant.commonName} (ID: ${plant.id}) ima jačinu ${plant.aromaStrength} (prekoračenje: ${excessPercentage.toFixed(2)}%)`,
         "WARNING"
       );
 
       // Zasadi novu biljku
+      console.log(`   📌 Šaljem zahtev za sađenje nove biljke...`);
       const newPlant = await this.plantNewPlant(plant.commonName, plant.latinName, plant.countryOfOrigin);
+      console.log(`   ✅ Nova biljka zasađena! ID: ${newPlant.id}, Početna jačina: ${newPlant.aromaStrength}`);
 
       await this.logger.log(`Zasađena nova biljka za balansiranje (ID: ${newPlant.id})`, "INFO");
 
       // Smanji jačinu nove biljke srazmerno procentu prekoračenja
       const reductionPercentage = -excessPercentage; // Negativan procenat za smanjenje
+      console.log(`   📉 Smanjujem jačinu nove biljke za ${excessPercentage.toFixed(2)}%...`);
       await this.adjustPlantAroma(newPlant.id, reductionPercentage);
+      
+      const expectedStrength = newPlant.aromaStrength * (1 + reductionPercentage / 100);
+      console.log(`   ✅ Nova jačina: ~${expectedStrength.toFixed(2)}`);
+      console.log(`   🎉 Balansiranje završeno!\n`);
 
       await this.logger.log(
         `Balansiranje završeno: nova biljka ${newPlant.id} sa smanjenom jačinom za ${excessPercentage.toFixed(2)}%`,
         "INFO"
       );
     } catch (error) {
+      console.log(`   ❌ Greška pri balansiranju: ${(error as Error).message}\n`);
       await this.logger.log(`Greška pri balansiranju arome: ${(error as Error).message}`, "ERROR");
       // Ne bacamo grešku jer je balansiranje opcionalno
     }

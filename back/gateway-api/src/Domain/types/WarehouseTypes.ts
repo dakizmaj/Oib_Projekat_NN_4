@@ -1,14 +1,19 @@
-import { PackageStatus } from "../enums/PackageStatus"
+export interface WarehouseDTO {
+  id?: number;
+  name: string;
+  location: string;
+  maxCapacity: number;
+  currentCapacity: number;
+}
 
 export interface PackagingDTO {
   id?: number;
   packageId: string;
   sender: string;
   perfumeCount: number;
-  perfumeIds?: string; // JSON array: "[1,2,3]"
   warehouseId: number;
   warehouseName?: string;
   destinationAddress: string;
-  packageStatus: PackageStatus;
+  packageStatus: string;
   createdAt?: Date;
 }

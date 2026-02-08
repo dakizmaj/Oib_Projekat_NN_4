@@ -8,6 +8,7 @@ import { ProcessingRequest, ProcessingResult } from "../types/ProcessingTypes";
 import { SalesType } from "../types/SalesType";
 import { ReceiptDTO } from "../DTOs/ReceiptDTO";
 import { MonthData, Revenue, YearData } from "../types/AnalysisTypes";
+import { WarehouseDTO, PackagingDTO } from "../types/WarehouseTypes";
 
 export interface IGatewayService {
   // Auth
@@ -44,4 +45,24 @@ export interface IGatewayService {
   getTopTenRevenue(): Promise<Revenue>;
   getRevenueByMonth(): Promise<MonthData[]>;
   getRevenueByYear(): Promise<YearData[]>;
+
+  // Warehouse
+  getAllWarehouses(): Promise<WarehouseDTO[]>;
+  getWarehouseById(id: number): Promise<WarehouseDTO>;
+  getAllPackages(): Promise<PackagingDTO[]>;
+  getPackagesByWarehouse(warehouseId: number): Promise<PackagingDTO[]>;
+  createPackage(packageData: Omit<PackagingDTO, 'id' | 'createdAt'>): Promise<PackagingDTO>;
+  packPerfumes(request: {
+    perfumeType: string;
+    quantity: number;
+    netVolume: number;
+    warehouseId: number;
+    sender: string;
+    destinationAddress: string;
+    plantCommonName: string;
+  }): Promise<PackagingDTO>;
+  sendPackages(packageIds: number[]): Promise<{ message: string; sentCount: number }>;
+
+  // Logging
+  getAllLogs(): Promise<any[]>;
 }

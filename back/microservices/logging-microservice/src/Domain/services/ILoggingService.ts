@@ -16,6 +16,7 @@ export type LogFilterParams = {
 export interface ILoggingService {
   store(log: LogDTO): Promise<ResultAsync<undefined, LoggingError>>;
   read(logId: number): Promise<ResultAsync<LogDTO, LoggingError>>;
+  getAll(): Promise<ResultAsync<LogDTO[], LoggingError>>;
   update(log: LogDTO): Promise<ResultAsync<LogDTO, LoggingError>>;
   delete(logId: number): Promise<ResultAsync<undefined, LoggingError>>;
   // find(): Promise<ResultAsync<LogDTO, LoggingError>>;
