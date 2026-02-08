@@ -1,16 +1,22 @@
 import { Like, Repository } from "typeorm";
-import { IDataAnalysisService } from "../Domain/Services/IDataAnalysisService";
+import { IDataAnalysisService, AnalysisReportDTO } from "../Domain/Services/IDataAnalysisService";
 import { Receipt } from "../Domain/Models/Receipt";
+import { AnalysisReport } from "../Domain/Models/AnalysisReport";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ReceiptDTO } from "../Domain/DTOs/ReceiptDTO";
 import { ILogerService } from "../Domain/Services/ILogerService";
-import { MonthData, Revenue, YearData } from "../Domain/types/AnalysisTypes";
+import { MonthData, Revenue, YearData, WeekData, TrendData } from "../Domain/types/AnalysisTypes";
+import { Db } from "../Database/DbConnectionPool";
 
 export class DataAnalysisService implements IDataAnalysisService{
+    private reportRepo: Repository<AnalysisReport>;
+    
     constructor(
         private recieptRepo: Repository<Receipt>,
         private logger: ILogerService
-    ){}
+    ){
+        this.reportRepo = Db.getRepository(AnalysisReport);
+    }
 
     async createReceipt(receipt: ReceiptDTO): Promise<ResultAsync<ReceiptDTO, string>> {
         const created = this.recieptRepo.create({
@@ -85,9 +91,9 @@ export class DataAnalysisService implements IDataAnalysisService{
     }
 
     async getRevenueByMonth(): Promise<ResultAsync<MonthData[], string>> {
-        const items = await this.recieptRepo.createQueryBuilder('month')
-        .select("MONTH(reciept.datumProdaje)", "month")
-        .addSelect("SUM(reciept.iznos)", "revenue")
+        const items = await this.recieptRepo.createQueryBuilder('receipt')
+        .select("MONTH(receipt.datumProdaje)", "month")
+        .addSelect("SUM(receipt.iznos)", "revenue")
         .groupBy("month")
         .orderBy("month")
         .getRawMany();
@@ -99,9 +105,9 @@ export class DataAnalysisService implements IDataAnalysisService{
     }
 
     async getRevenueByYear(): Promise<ResultAsync<YearData[], string>> {
-        const items = await this.recieptRepo.createQueryBuilder('month')
-        .select("YEAR(reciept.datumProdaje)", "year")
-        .addSelect("SUM(reciept.iznos)", "revenue")
+        const items = await this.recieptRepo.createQueryBuilder('receipt')
+        .select("YEAR(receipt.datumProdaje)", "year")
+        .addSelect("SUM(receipt.iznos)", "revenue")
         .groupBy("year")
         .orderBy("year")
         .getRawMany();
@@ -110,6 +116,107 @@ export class DataAnalysisService implements IDataAnalysisService{
             return errAsync("Neuspesno dobavljanje po nedelju");
         }
         return okAsync(items);
+    }
+
+    async getRevenueByWeek(): Promise<ResultAsync<WeekData[], string>> {
+        const items = await this.recieptRepo.createQueryBuilder('receipt')
+        .select("WEEK(receipt.datumProdaje)", "week")
+        .addSelect("YEAR(receipt.datumProdaje)", "year")
+        .addSelect("SUM(receipt.iznos)", "revenue")
+        .groupBy("year, week")
+        .orderBy("year, week")
+        .getRawMany();
+        if(!items){
+            this.logger.log("Neuspesno dobavljanje prihoda po nedelji", "ERROR");
+            return errAsync("Neuspesno dobavljanje po nedelji");
+        }
+        return okAsync(items);
+    }
+
+    async getSalesTrend(): Promise<ResultAsync<TrendData[], string>> {
+        const items = await this.recieptRepo.createQueryBuilder('receipt')
+        .select("DATE(receipt.datumProdaje)", "date")
+        .addSelect("SUM(receipt.iznos)", "revenue")
+        .addSelect("COUNT(*)", "sales")
+        .groupBy("date")
+        .orderBy("date", "DESC")
+        .limit(30)
+        .getRawMany();
+        if(!items){
+            this.logger.log("Neuspesno dobavljanje trenda prodaje", "ERROR");
+            return errAsync("Neuspesno dobavljanje trenda");
+        }
+        return okAsync(items);
+    }
+
+    async createAnalysisReport(title: string, reportType: string, data: any, description?: string): Promise<ResultAsync<AnalysisReportDTO, string>> {
+        try {
+            const report = this.reportRepo.create({
+                title,
+                reportType,
+                data,
+                description
+            });
+            
+            const saved = await this.reportRepo.save(report);
+            this.logger.log(`Izvjestaj ${saved.id} kreiran`, "INFO");
+            
+            return okAsync({
+                id: saved.id,
+                title: saved.title,
+                reportType: saved.reportType,
+                data: saved.data,
+                createdAt: saved.createdAt,
+                description: saved.description
+            });
+        } catch (error) {
+            this.logger.log("Greska pri kreiranju izvjestaja", "ERROR");
+            return errAsync("Greska pri kreiranju izvjestaja");
+        }
+    }
+
+    async getAllReports(): Promise<ResultAsync<AnalysisReportDTO[], string>> {
+        try {
+            const reports = await this.reportRepo.find({
+                order: { createdAt: 'DESC' }
+            });
+            
+            const dtos = reports.map(r => ({
+                id: r.id,
+                title: r.title,
+                reportType: r.reportType,
+                data: r.data,
+                createdAt: r.createdAt,
+                description: r.description
+            }));
+            
+            return okAsync(dtos);
+        } catch (error) {
+            this.logger.log("Greska pri dobavljanju izvjestaja", "ERROR");
+            return errAsync("Greska pri dobavljanju izvjestaja");
+        }
+    }
+
+    async getReportById(id: number): Promise<ResultAsync<AnalysisReportDTO, string>> {
+        try {
+            const report = await this.reportRepo.findOne({ where: { id } });
+            
+            if (!report) {
+                return errAsync("Izvjestaj nije pronadjen");
+            }
+            
+            return okAsync({
+                id: report.id,
+                title: report.title,
+                reportType: report.reportType,
+                data: report.data,
+                createdAt: report.createdAt,
+                description: report.description
+            });
+        } catch (error) {
+            this.logger.log("Greska pri dobavljanju izvjestaja", "ERROR");
+            return errAsync("Greska pri dobavljanju izvjestaja");
+        }
     }
 }
 

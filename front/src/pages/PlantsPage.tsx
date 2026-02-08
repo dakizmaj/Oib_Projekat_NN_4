@@ -101,7 +101,8 @@ export const PlantsPage: React.FC = () => {
 
     try {
       await plantAPI.harvestPlants(plant.commonName, 1, token);
-      loadPlants();
+      // Wait a bit for backend to process, then reload
+      setTimeout(() => loadPlants(), 500);
     } catch (error) {
       console.error("Failed to harvest:", error);
       alert("Greška pri berbi biljke!");

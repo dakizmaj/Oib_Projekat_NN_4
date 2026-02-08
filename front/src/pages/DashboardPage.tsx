@@ -173,6 +173,29 @@ export const DashboardPage: React.FC = () => {
                 Katalog parfema i prodaja sa fiskalnim računima
               </p>
             </div>
+
+            {/* Analysis Card */}
+            <div
+              className="window"
+              style={{
+                padding: "24px",
+                cursor: "pointer",
+                transition: "transform 0.2s",
+              }}
+              onClick={() => navigate("/analysis")}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              <div style={{ fontSize: "40px", marginBottom: "12px" }}>📊</div>
+              <h3 style={{ margin: "0 0 8px 0" }}>Analiza podataka</h3>
+              <p style={{ margin: 0, color: "var(--win11-text-secondary)", fontSize: "14px" }}>
+                Izvještaji, statistike i analiza prodaje
+              </p>
+            </div>
           </div>
         </div>
       </div>

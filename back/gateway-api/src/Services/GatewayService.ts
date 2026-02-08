@@ -28,7 +28,7 @@ export class GatewayService implements IGatewayService {
     const plantsBaseURL = process.env.PLANTS_SERVICE_API || "http://localhost:5003/api/v1";
     const processingBaseURL = process.env.PROCESSING_SERVICE_API || "http://localhost:5004/api/v1";
     const salseBaseURL = process.env.SALES_SERVICE_API || "http://localhost:5008/api/v1";
-    const analysisBaseURL = process.env.ANALYSIS_SERVICE_API || "http://localhost:5006/api/v1";
+    const analysisBaseURL = process.env.ANALYSIS_SERVICE_API || "http://localhost:5007/api/v1";
     const warehouseBaseURL = process.env.WAREHOUSE_SERVICE_API || "http://localhost:5005/api/v1";
     const loggingBaseURL = process.env.LOGGING_SERVICE_API || "http://localhost:5002/api/v1";
 
