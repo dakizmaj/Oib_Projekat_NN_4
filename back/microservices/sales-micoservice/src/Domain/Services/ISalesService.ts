@@ -1,9 +1,29 @@
-import { ResultAsync } from "neverthrow";
-import { PerfumeDTO } from "../DTOs/PerfumeDTO";
-import { SalesType } from "../types/SalesType";
+import { Result } from "neverthrow";
+
+export interface PerfumeCatalogItem {
+    id: number;
+    name: string;
+    type: string;
+    volume: number;
+    price: number;
+    availableQuantity: number;
+}
+
+export interface SaleRequest {
+    perfumeId: number;
+    quantity: number;
+    customerName: string;
+}
+
+export interface SaleResult {
+    success: boolean;
+    receiptId?: number;
+    message: string;
+    totalPrice?: number;
+    perfumesSold?: number;
+}
 
 export interface ISalesService {
-    createPerfume(data: PerfumeDTO): Promise<ResultAsync<PerfumeDTO, string>>;
-    getAllPerfumes(): Promise<ResultAsync<PerfumeDTO[], string>>;
-    perfumesToSend(perfumeId: number, amount: number): Promise<ResultAsync<SalesType, string>>;
+    getCatalog(): Promise<Result<PerfumeCatalogItem[], Error>>;
+    sellPerfumes(request: SaleRequest): Promise<Result<SaleResult, Error>>;
 }

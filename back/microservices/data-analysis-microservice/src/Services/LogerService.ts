@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ILogerService } from "../Domain/services/ILogerService";
+import { ILogerService } from "../Domain/Services/ILogerService";
 
 export class LogerService implements ILogerService {
   private readonly loggingServiceUrl: string;

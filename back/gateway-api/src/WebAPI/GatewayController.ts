@@ -39,10 +39,9 @@ export class GatewayController {
     this.router.get("/perfumes/:id", this.getPerfumeById.bind(this));
     this.router.get("/perfumes/type/:type", this.getPerfumesByType.bind(this));
   
-    // Sales
-    this.router.post('/sales/perfume', this.createPerfume.bind(this));
-    this.router.get('/sales/perfumes', this.getAllPerfumes.bind(this));
-    this.router.get('/sales/send', this.perfumesToSend.bind(this));
+    // Sales mikroservis
+    this.router.get('/sales/catalog', this.getSalesCatalog.bind(this));
+    this.router.post('/sales/sell', this.sellPerfumes.bind(this));
     
     // Data Analysis
     this.router.get('/data/reciepts', this.getAllReceipts.bind(this));
@@ -198,33 +197,23 @@ export class GatewayController {
     }
   }
 
-  //Sales 
-  private async createPerfume(req:Request, res: Response): Promise<void>{
-    try{
-      const data: PerfumeDTO  = req.body;
-      const perfume = await this.gatewayService.createPerfume(data);
-      res.status(200).json(perfume);
-    }catch (err){
-      res.status(500).json({message: (err as Error).message});
-    }
-  }
-
-  private async getAllPerfumesForSale(req: Request, res: Response): Promise<void> {
+  // Sales mikroservis
+  private async getSalesCatalog(req: Request, res: Response): Promise<void> {
     try {
-      const perfumes = await this.gatewayService.getAllPerfumes();
-      res.status(200).json(perfumes);
+      const catalog = await this.gatewayService.getSalesCatalog();
+      res.status(200).json(catalog);
     } catch (err) {
       res.status(500).json({ message: (err as Error).message });
     }
   }
 
-  private async perfumesToSend(req: Request, res:Response): Promise<void>{
-    try{
-      const {perfumeId, amount} = req.body;
-      const toSend = await this.gatewayService.perfumesToSend(perfumeId, amount);
-      res.status(200).json(toSend);
-    }catch (err){
-      res.status(404).json({ message: (err as Error).message});
+  private async sellPerfumes(req: Request, res: Response): Promise<void> {
+    try {
+      const { perfumeId, quantity, customerName } = req.body;
+      const result = await this.gatewayService.sellPerfumes({ perfumeId, quantity, customerName });
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
     }
   }
 

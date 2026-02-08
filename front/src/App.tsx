@@ -5,6 +5,7 @@ import { PlantsPage } from "./pages/PlantsPage";
 import { ProcessingPage } from "./pages/ProcessingPage";
 import { PerfumesPage } from "./pages/PerfumesPage";
 import { WarehousePage } from "./pages/WarehousePage";
+import { SalesPage } from "./pages/SalesPage";
 import { IAuthAPI } from "./api/auth/IAuthAPI";
 import { AuthAPI } from "./api/auth/AuthAPI";
 import { UserAPI } from "./api/users/UserAPI";
@@ -55,6 +56,14 @@ function App() {
           element={
             <ProtectedRoute>
               <WarehousePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sales"
+          element={
+            <ProtectedRoute>
+              <SalesPage />
             </ProtectedRoute>
           }
         />

@@ -33,9 +33,8 @@ export interface IGatewayService {
   getPerfumesByType(type: string): Promise<PerfumeDTO[]>;
 
   // Sales
-  createPerfume(data: PerfumeDTO): Promise<PerfumeDTO>;
-  getAllPerfumesForSale(): Promise<PerfumeDTO[]>;
-  perfumesToSend(perfumeId: number, amount: number): Promise<SalesType>;
+  getSalesCatalog(): Promise<any[]>;
+  sellPerfumes(request: { perfumeId: number; quantity: number; customerName: string }): Promise<any>;
 
   // Data Analysis
   createReceipt(receipt: ReceiptDTO): Promise<ReceiptDTO>;

@@ -27,7 +27,7 @@ export class GatewayService implements IGatewayService {
     const userBaseURL = process.env.USER_SERVICE_API;
     const plantsBaseURL = process.env.PLANTS_SERVICE_API || "http://localhost:5003/api/v1";
     const processingBaseURL = process.env.PROCESSING_SERVICE_API || "http://localhost:5004/api/v1";
-    const salseBaseURL = process.env.SALES_SERVICE_API || "http://localhost:5005/api/v1";
+    const salseBaseURL = process.env.SALES_SERVICE_API || "http://localhost:5008/api/v1";
     const analysisBaseURL = process.env.ANALYSIS_SERVICE_API || "http://localhost:5006/api/v1";
     const warehouseBaseURL = process.env.WAREHOUSE_SERVICE_API || "http://localhost:5005/api/v1";
     const loggingBaseURL = process.env.LOGGING_SERVICE_API || "http://localhost:5002/api/v1";
@@ -158,21 +158,17 @@ export class GatewayService implements IGatewayService {
     return response.data;
   }
 
-   // Sales
-  async createPerfume(data: PerfumeDTO): Promise<PerfumeDTO>{
-    const response = await this.salesClient.post<PerfumeDTO>(`/sales/perfume`, data);
+  // Sales mikroservis
+  async getSalesCatalog(): Promise<any[]> {
+    const response = await this.salesClient.get('/sales/catalog');
     return response.data;
   }
-  async getAllPerfumesForSale(): Promise<PerfumeDTO[]>{
-    const response = await this.salesClient.get<PerfumeDTO[]>(`/sales/perfumes`);
+
+  async sellPerfumes(request: { perfumeId: number; quantity: number; customerName: string }): Promise<any> {
+    const response = await this.salesClient.post('/sales/sell', request);
     return response.data;
   }
-  async perfumesToSend(perfumeId: number, amount: number): Promise<SalesType>{
-    const response = await this.salesClient.get<SalesType>(`/sales/send`, {
-      params: { perfumeId, amount }
-    });
-    return response.data;
-  }
+
   // Data Analysis
   async createReceipt(receipt: ReceiptDTO): Promise<ReceiptDTO>{
     const response = await this.analysisClient.post(`/data/reciept`, receipt);
