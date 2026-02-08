@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { IWarehouseAPI } from "./IWarehouseAPI";
-import { WarehouseDTO, PackagingDTO } from "../../models/warehouse/WarehouseDTO";
+import { WarehouseDTO, PackagingDTO, PackPerfumesRequest, SendPackagesRequest } from "../../models/warehouse/WarehouseDTO";
 
 const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL;
 
@@ -41,8 +41,13 @@ export class WarehouseAPI implements IWarehouseAPI {
     return response.data;
   }
 
-  async sendPackages(packageIds: number[]): Promise<{ message: string; sentCount: number }> {
-    const response = await this.client.post("/packages/send", { packageIds });
+  async sendPackages(request: SendPackagesRequest): Promise<{ message: string; sentCount: number }> {
+    const response = await this.client.post("/packages/send", request);
+    return response.data;
+  }
+
+  async packPerfumes(request: PackPerfumesRequest): Promise<PackagingDTO> {
+    const response = await this.client.post("/packages/pack-perfumes", request);
     return response.data;
   }
 }

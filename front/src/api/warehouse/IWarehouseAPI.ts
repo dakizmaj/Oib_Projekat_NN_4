@@ -1,4 +1,4 @@
-import { WarehouseDTO, PackagingDTO } from "../../models/warehouse/WarehouseDTO";
+import { WarehouseDTO, PackagingDTO, PackPerfumesRequest, SendPackagesRequest } from "../../models/warehouse/WarehouseDTO";
 
 export interface IWarehouseAPI {
   getAllWarehouses(): Promise<WarehouseDTO[]>;
@@ -6,5 +6,6 @@ export interface IWarehouseAPI {
   getAllPackages(): Promise<PackagingDTO[]>;
   getPackagesByWarehouse(warehouseId: number): Promise<PackagingDTO[]>;
   createPackage(packageData: Omit<PackagingDTO, 'id' | 'createdAt'>): Promise<PackagingDTO>;
-  sendPackages(packageIds: number[]): Promise<{ message: string; sentCount: number }>;
+  sendPackages(request: SendPackagesRequest): Promise<{ message: string; sentCount: number }>;
+  packPerfumes(request: PackPerfumesRequest): Promise<PackagingDTO>;
 }

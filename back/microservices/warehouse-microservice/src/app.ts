@@ -149,9 +149,9 @@ AppDataSource.initialize()
     // Package routes
     router.get("/packages", controller.getAllPackages);
     router.get("/packages/warehouse/:warehouseId", controller.getPackagesByWarehouse);
+    router.post("/packages/pack-perfumes", controller.packPerfumes); // MUST be before /packages POST
+    router.post("/packages/send", controller.sendPackages); // MUST be before /packages POST
     router.post("/packages", controller.createPackage);
-    router.post("/packages/pack-perfumes", controller.packPerfumes);
-    router.post("/packages/send", controller.sendPackages);
 
     app.use("/api/v1", router);
 

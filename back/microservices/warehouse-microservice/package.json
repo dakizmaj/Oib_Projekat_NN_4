@@ -10,11 +10,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.12.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.4",
     "eslint-plugin-neverthrow": "^1.1.4",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.16.0",
     "neverthrow": "^8.2.0",
     "typeorm": "^0.3.28"

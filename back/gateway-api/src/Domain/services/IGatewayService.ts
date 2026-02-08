@@ -61,7 +61,12 @@ export interface IGatewayService {
     destinationAddress: string;
     plantCommonName: string;
   }): Promise<PackagingDTO>;
-  sendPackages(packageIds: number[]): Promise<{ message: string; sentCount: number }>;
+  sendPackages(request: {
+    warehouseId?: number;
+    packageIds?: string[];
+    packIfNotAvailable?: boolean;
+    packParams?: any;
+  }): Promise<{ message: string; sentCount: number }>;
 
   // Logging
   getAllLogs(): Promise<any[]>;

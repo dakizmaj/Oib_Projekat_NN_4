@@ -4,7 +4,7 @@ import { Warehouse } from "../Domain/models/Warehouse";
 import { Packaging } from "../Domain/models/Packaging";
 import { PackagingDTO } from "../Domain/DTOs/PackagingDTO";
 import { WarehouseDTO } from "../Domain/DTOs/WarehouseDTO";
-import { IWarehouseService } from "../Domain/services/IWarehouseService";
+import { IWarehouseService, SendPackagesRequest } from "../Domain/services/IWarehouseService";
 import { PackageStatus } from "../Domain/enums/PackageStatus";
 import axios from "axios";
 
@@ -185,27 +185,47 @@ export class MagazineWarehouseService implements IWarehouseService {
 
   /**
    * Magacinski strategy: Šalje po 1 ambalažu sa 2.5s vremenom nabavke
+   * Ako nema dostupne ambalaže i packIfNotAvailable=true, automatski pakuje parfeme
    */
-  async sendPackages(packageIds: number[]): Promise<Result<{ message: string; sentCount: number }, Error>> {
+  async sendPackages(request: SendPackagesRequest): Promise<Result<{ message: string; sentCount: number }, Error>> {
     try {
-      if (packageIds.length === 0) {
-        return err(new Error("No packages to send"));
-      }
+      const { warehouseId, packageIds, packIfNotAvailable = false, packParams } = request;
 
-      // Fetch packages
-      const packages = await this.packagingRepository.find({ 
-        where: { id: In(packageIds) },
+      // Find available PACKAGED packages
+      let packages = await this.packagingRepository.find({ 
+        where: { 
+          packageStatus: PackageStatus.PACKSTATUS_PACKAGED,
+          ...(warehouseId && { warehouseId })
+        },
         relations: ['warehouse']
       });
-      
-      if (packages.length === 0) {
-        return err(new Error("No valid packages found"));
+
+      // Filter by specific packageIds if provided
+      if (packageIds && packageIds.length > 0) {
+        packages = packages.filter(pkg => packageIds.includes(pkg.packageId));
       }
 
-      // Check all are PACKAGED status
-      const invalidPackages = packages.filter(p => p.packageStatus !== PackageStatus.PACKSTATUS_PACKAGED);
-      if (invalidPackages.length > 0) {
-        return err(new Error("Some packages are not in PACKAGED status"));
+      // If no packages available and auto-pack is enabled
+      if (packages.length === 0 && packIfNotAvailable && packParams) {
+        await this.logAction('AUTO_PACK_START', `No packages available, auto-packing perfumes`);
+        
+        const packResult = await this.packPerfumes(packParams);
+        if (packResult.isErr()) {
+          return err(new Error(`Auto-pack failed: ${packResult.error.message}`));
+        }
+
+        // Reload packages
+        packages = await this.packagingRepository.find({ 
+          where: { 
+            packageStatus: PackageStatus.PACKSTATUS_PACKAGED,
+            ...(warehouseId && { warehouseId })
+          },
+          relations: ['warehouse']
+        });
+      }
+      
+      if (packages.length === 0) {
+        return err(new Error("No packages available to send. Enable auto-pack or create packages first."));
       }
 
       let totalSent = 0;
@@ -267,10 +287,8 @@ export class MagazineWarehouseService implements IWarehouseService {
   private async logAction(action: string, details: string): Promise<void> {
     try {
       await axios.post(`${this.LOGGING_URL}/logs`, {
-        service: 'warehouse-microservice',
-        action,
-        details,
-        timestamp: new Date().toISOString()
+        type: action,
+        description: `[warehouse] ${details}`
       });
     } catch (error) {
       console.error('Failed to log action:', error);

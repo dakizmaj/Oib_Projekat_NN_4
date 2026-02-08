@@ -58,9 +58,9 @@ export class GatewayController {
     this.router.get("/warehouses/:id", this.getWarehouseById.bind(this));
     this.router.get("/packages", this.getAllPackages.bind(this));
     this.router.get("/packages/warehouse/:warehouseId", this.getPackagesByWarehouse.bind(this));
+    this.router.post("/packages/pack-perfumes", this.packPerfumes.bind(this)); // MUST be before /packages POST
+    this.router.post("/packages/send", this.sendPackages.bind(this)); // MUST be before /packages POST
     this.router.post("/packages", this.createPackage.bind(this));
-    this.router.post("/packages/pack-perfumes", this.packPerfumes.bind(this));
-    this.router.post("/packages/send", this.sendPackages.bind(this));
 
     // Logging (NO AUTH for testing)
     this.router.get("/logs", this.getAllLogs.bind(this));
@@ -353,8 +353,14 @@ export class GatewayController {
 
   private async sendPackages(req: Request, res: Response): Promise<void> {
     try {
-      const { packageIds } = req.body;
-      const result = await this.gatewayService.sendPackages(packageIds);
+      const { warehouseId, packageIds, packIfNotAvailable, packParams } = req.body;
+      
+      const result = await this.gatewayService.sendPackages({
+        warehouseId,
+        packageIds,
+        packIfNotAvailable,
+        packParams
+      });
       res.status(200).json(result);
     } catch (err) {
       res.status(400).json({ message: (err as Error).message });

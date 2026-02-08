@@ -121,14 +121,17 @@ export class WarehouseController {
 
   // POST /packages/send - Send packages (uses strategy based on user role)
   sendPackages = async (req: Request, res: Response): Promise<void> => {
-    const { packageIds } = req.body;
+    const { 
+      warehouseId, 
+      packIfNotAvailable = false, 
+      packParams 
+    } = req.body;
 
-    if (!Array.isArray(packageIds) || packageIds.length === 0) {
-      res.status(400).json({ error: "packageIds must be a non-empty array" });
-      return;
-    }
-
-    const result = await this.warehouseService.sendPackages(packageIds);
+    const result = await this.warehouseService.sendPackages({
+      warehouseId,
+      packIfNotAvailable,
+      packParams
+    });
 
     if (result.isErr()) {
       res.status(400).json({ error: result.error.message });

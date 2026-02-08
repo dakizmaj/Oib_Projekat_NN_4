@@ -12,6 +12,13 @@ export type PackPerfumesRequest = {
   plantCommonName: string;
 };
 
+export type SendPackagesRequest = {
+  warehouseId?: number;
+  packageIds?: string[]; // Specific package IDs to send
+  packIfNotAvailable?: boolean;
+  packParams?: PackPerfumesRequest;
+};
+
 export interface IWarehouseService {
   // Warehouse operations
   getAllWarehouses(): Promise<Result<WarehouseDTO[], Error>>;
@@ -24,5 +31,6 @@ export interface IWarehouseService {
   packPerfumes(request: PackPerfumesRequest): Promise<Result<PackagingDTO, Error>>;
   
   // Send packages with strategy-based timing
-  sendPackages(packageIds: number[]): Promise<Result<{ message: string; sentCount: number }, Error>>;
+  // If no packages available and packIfNotAvailable=true, automatically creates them
+  sendPackages(request: SendPackagesRequest): Promise<Result<{ message: string; sentCount: number }, Error>>;
 }

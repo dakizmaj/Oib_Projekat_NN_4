@@ -71,7 +71,7 @@ export class GatewayService implements IGatewayService {
     this.warehouseClient = axios.create({
       baseURL: warehouseBaseURL,
       headers: { "Content-Type": "application/json" },
-      timeout: 5000,
+      timeout: 100000, // 100s for warehouse operations
     });
 
     this.loggingClient = axios.create({
@@ -242,8 +242,13 @@ export class GatewayService implements IGatewayService {
     return response.data;
   }
 
-  async sendPackages(packageIds: number[]): Promise<{ message: string; sentCount: number }> {
-    const response = await this.warehouseClient.post("/packages/send", { packageIds });
+  async sendPackages(request: {
+    warehouseId?: number;
+    packageIds?: string[];
+    packIfNotAvailable?: boolean;
+    packParams?: any;
+  }): Promise<{ message: string; sentCount: number }> {
+    const response = await this.warehouseClient.post("/packages/send", request);
     return response.data;
   }
 
